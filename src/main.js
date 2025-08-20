@@ -10,7 +10,7 @@ let boostEnded = false;
 
 const phaseText = document.getElementById("phaseText");
 const TARGET_TILT_ANGLE = THREE.MathUtils.degToRad(45); // tilt to 45° by end of boost
-
+//test
 // === Init Scene ===
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb); // Sky blue
