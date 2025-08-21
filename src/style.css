@@ -3,14 +3,84 @@ body {
   overflow: hidden;
   font-family: Arial, sans-serif;
 }
-
 #overlay {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: rgba(0,0,0,0.6);
-  color: white;
-  padding: 10px;
+  background-color: rgba(20, 30, 20, 0.85);  /* dark olive green */
+  color: #B0C68B;                              /* light army green text */
+  font-family: 'Roboto Mono', monospace;       /* rugged cockpit font */
+  font-size: 14px;
+  padding: 12px 15px;
+  border: 2px solid #556B2F;                   /* military border */
   border-radius: 5px;
-  z-index: 1;
+  box-shadow: 0 0 8px #2E4D1C;                 /* subtle glow effect */
+  z-index: 10;
+}
+
+/* Military Rugged Font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+.lil-gui {
+  background: rgba(20, 30, 20, 0.95) !important; /* dark olive green */
+  border: 2px solid #556B2F !important;           /* military green border */
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 13px !important;
+  color: #B0C68B !important;                       /* light army green text */
+  text-shadow: 0 0 2px #2E4D1C;                    /* subtle glow */
+}
+
+.lil-gui .title {
+  background: #556B2F !important;                  /* darker header */
+  color: #B0C68B !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+}
+
+.lil-gui .cr {
+  border-bottom: 1px solid #2E4D1C !important;
+}
+
+.lil-gui input, 
+.lil-gui select {
+  background: #2E4D1C !important;                  /* dark input background */
+  color: #B0C68B !important;
+  border: 1px solid #556B2F !important;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+#rocketControls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+}
+
+#rocketControls button {
+  width: 140px;
+  padding: 12px 0;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: bold;
+  font-size: 16px;
+  color: #B0C68B;             /* light army green */
+  background-color: #556B2F;  /* military green */
+  border: 3px solid #2E4D1C;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 8px #2E4D1C;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+#rocketControls button:hover {
+  background-color: #6B8E23;  /* hover brighter green */
+  box-shadow: 0 0 12px #B0C68B;
+}
+
+#rocketControls button:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 6px #2E4D1C inset;
 }
