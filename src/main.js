@@ -7,92 +7,9 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { Sky } from 'three/examples/jsm/objects/Sky';
 
-const CONFIG = {
-  // Physics constants
-  GRAVITY: -9.81,
-  AIR_DENSITY_SEA_LEVEL: 1.225,
-  AIR_DENSITY_SCALE_HEIGHT: 8500,
-  TARGET_TILT_ANGLE: THREE.MathUtils.degToRad(45), // tilt to 45° by end of boost
-  
-  // Visual constants
-  INITIAL_FUEL: 50,           // kg
-  FUEL_BURN_RATE: 5,          // kg/s
-  PARTICLE_COUNT: 500,
-  EXPLOSION_PARTICLE_COUNT: 1000,
-  STAR_COUNT: 1000,
-  CLOUD_COUNT: 20,
-  TRAIL_MAX_POINTS: 100,
-  
-  // Camera constants
-  FOLLOW_DISTANCE: 6,
-  FOLLOW_HEIGHT: 3,
-  FOLLOW_FORWARD_OFFSET: 4,
-  OVERVIEW_RADIUS: 50,
-  OVERVIEW_HEIGHT: 30,
-  OVERVIEW_ORBIT_SPEED: 0.25,
-  
-  // Post-processing defaults
-  BLOOM_THRESHOLD: 0.21,
-  BLOOM_STRENGTH: 0.7,
-  BLOOM_RADIUS: 0.55,
-  TONE_MAPPING_EXPOSURE: 0.5,
-  
-  // Sky defaults
-  SKY_TURBIDITY: 10,
-  SKY_RAYLEIGH: 3,
-  SKY_MIE_COEFFICIENT: 0.005,
-  SKY_MIE_DIRECTIONAL: 0.7,
-  SKY_ELEVATION: 2,
-  SKY_AZIMUTH: 180,
-  
-  // Time of day presets
-  TIME_OF_DAY: {
-    DAY: {
-      elevation: 45,
-      turbidity: 10,
-      rayleigh: 3
-    },
-    SUNSET: {
-      elevation: 5,
-      turbidity: 5,
-      rayleigh: 5
-    },
-    NIGHT: {
-      elevation: -10,
-      turbidity: 2,
-      rayleigh: 0.5
-    }
-  },
-  
-  // Camera shake defaults
-  CAMERA_SHAKE_DURATION: 2.0,
-  CAMERA_SHAKE_INTENSITY: 1.0,
-  
-  // Explosion defaults
-  EXPLOSION_LIFETIME: 3,
-  
-  // Colors
-  COLORS: {
-    MISSILE: 0xff3333,
-    FIN: 0xaaaaaa,
-    FLAME: 0xff6600,
-    TRAIL: 0xff9900,
-    TRAIL_GLOW: 0xff5500,
-    PLATFORM_BASE: 0x333333,
-    PLATFORM_MAIN: 0x555555,
-    PLATFORM_DETAIL: 0x444444,
-    SUPPORT: 0x777777,
-    WALKWAY: 0x888888,
-    STRIPE: 0xff0000,
-    GROUND: 0x228B22,
-    CRATER: 0x333333,
-    DEBRIS: 0x555555
-  }
-};
-
 let scene, camera, renderer, missile, clock, composer;
 let phase = "boost";
-let followOffset = new THREE.Vector3(0, CONFIG.FOLLOW_HEIGHT, -CONFIG.FOLLOW_DISTANCE);
+let followOffset = new THREE.Vector3(0, 5, -15);
 let cameraMode = "overview";
 let boostEnded = false;
 let particleSystem, explosionParticles;
@@ -103,9 +20,8 @@ let lastImpactPosition = new THREE.Vector3();
 let impactEffects = [];
 let cameraShake = { active: false, intensity: 0, duration: 0, elapsed: 0 };
 
-
 const phaseText = document.getElementById("phaseText");
-// const TARGET_TILT_ANGLE = CONFIG.TARGET_TILT_ANGLE; // tilt to 45° by end of boost
+const TARGET_TILT_ANGLE = THREE.MathUtils.degToRad(45); // tilt to 45° by end of boost
 
 // === Init Scene ===
 scene = new THREE.Scene();
@@ -120,7 +36,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = CONFIG.TONE_MAPPING_EXPOSURE;
+renderer.toneMappingExposure = 0.5;
 renderer.outputEncoding = THREE.sRGBEncoding;
 document.body.appendChild(renderer.domElement);
 
@@ -130,9 +46,9 @@ const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.4, 0.85);
-bloomPass.threshold = CONFIG.BLOOM_THRESHOLD;
-bloomPass.strength = CONFIG.BLOOM_STRENGTH;
-bloomPass.radius = CONFIG.BLOOM_RADIUS;
+bloomPass.threshold = 0.21;
+bloomPass.strength = 0.7;
+bloomPass.radius = 0.55;
 composer.addPass(bloomPass);
 
 const outputPass = new OutputPass();
@@ -189,7 +105,7 @@ const groundDetailMaterial = new THREE.MeshStandardMaterial({
 const platformBase = new THREE.Mesh(
   new THREE.CylinderGeometry(3, 3, 0.5, 32),
   new THREE.MeshStandardMaterial({ 
-    color: CONFIG.COLORS.PLATFORM_BASE,
+    color: 0x333333,
     roughness: 0.8,
     metalness: 0.2
   })
@@ -262,7 +178,7 @@ for (let i = 0; i < 3; i++) {
 // === Enhanced Missile ===
 const missileGeometry = new THREE.CylinderGeometry(0.3, 0.3, 5, 32);
 const missileMaterial = new THREE.MeshStandardMaterial({ 
-  color: CONFIG.COLORS.MISSILE,
+  color: 0xff3333,
   metalness: 0.7,
   roughness: 0.3
 });
@@ -273,7 +189,7 @@ scene.add(missile);
 
 // Add missile fins
 const finGeometry = new THREE.ConeGeometry(0.4, 0.8, 4);
-const finMaterial = new THREE.MeshStandardMaterial({ color: CONFIG.COLORS.FIN });
+const finMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
 for (let i = 0; i < 4; i++) {
   const fin = new THREE.Mesh(finGeometry, finMaterial);
   fin.rotation.y = i * Math.PI / 2;
@@ -291,8 +207,8 @@ missile.add(nose);
 // Add enhanced exhaust flame during boost phase
 const flameGeometry = new THREE.ConeGeometry(0.4, 1.5, 32);
 const flameMaterial = new THREE.MeshStandardMaterial({ 
-  color: CONFIG.COLORS.FLAME,
-  emissive: CONFIG.COLORS.FLAME,
+  color: 0xff6600,
+  emissive: 0xff6600,
   emissiveIntensity: 2,
   transparent: true,
   opacity: 0.8
@@ -305,7 +221,7 @@ missile.add(flame);
 
 // Add particle system for exhaust
 function createParticleSystem() {
-  const particleCount = CONFIG.PARTICLE_COUNT;
+  const particleCount = 500;
   const particles = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   const colors = new Float32Array(particleCount * 3);
@@ -358,7 +274,7 @@ createParticleSystem();
 
 // Create explosion particles system
 function createExplosionParticles() {
-  const particleCount = CONFIG.EXPLOSION_PARTICLE_COUNT;
+  const particleCount = 1000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   const colors = new Float32Array(particleCount * 3);
@@ -402,7 +318,7 @@ function createExplosionParticles() {
       (Math.random() - 0.5) * 10
     )),
     active: false,
-    lifetime: CONFIG.EXPLOSION_LIFETIME,
+    lifetime: 3,
     elapsed: 0
   };
   
@@ -419,12 +335,12 @@ scene.add(sky);
 
 const sun = new THREE.Vector3();
 const effectController = {
-  turbidity: CONFIG.SKY_TURBIDITY,
-  rayleigh: CONFIG.SKY_RAYLEIGH,
-  mieCoefficient: CONFIG.SKY_MIE_COEFFICIENT,
-  mieDirectionalG: CONFIG.SKY_MIE_DIRECTIONAL,
-  elevation: CONFIG.SKY_ELEVATION,
-  azimuth: CONFIG.SKY_AZIMUTH,
+  turbidity: 10,
+  rayleigh: 3,
+  mieCoefficient: 0.005,
+  mieDirectionalG: 0.7,
+  elevation: 2,
+  azimuth: 180,
   exposure: renderer.toneMappingExposure
 };
 
@@ -451,7 +367,7 @@ function createStars() {
   const starGeometry = new THREE.SphereGeometry(0.25, 8, 8);
   const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
   
-  for (let i = 0; i < CONFIG.STAR_COUNT; i++) {
+  for (let i = 0; i < 1000; i++) {
     const star = new THREE.Mesh(starGeometry, starMaterial);
     const radius = 400;
     const theta = Math.random() * Math.PI * 2;
@@ -504,6 +420,9 @@ createClouds();
 clock = new THREE.Clock(false);
 
 // === Physics Parameters ===
+const GRAVITY = -9.81;
+const AIR_DENSITY = 1.225;
+
 
 let velocity = new THREE.Vector3(0, 0, 0);
 let position = missile.position.clone();
@@ -520,12 +439,12 @@ const params = {
   reset: () => resetSimulation(),
   showForces: true,
   showTrail: true,
-  initialFuel: CONFIG.INITIAL_FUEL,      // kg
-  fuelBurnRate: CONFIG.FUEL_BURN_RATE,       // kg/s
-  fuelLeft: CONFIG.INITIAL_FUEL,        // track remaining fuel
+  initialFuel: 50,      // kg
+  fuelBurnRate: 5,       // kg/s
+  fuelLeft: 50,        // track remaining fuel
   timeOfDay: "day",
   visualEffects: true,
-  cameraShakeIntensity: CONFIG.CAMERA_SHAKE_INTENSITY,
+  cameraShakeIntensity: 1.0,
   particleDensity: 1.0,
   realisticLighting: true,
   showClouds: true,
@@ -536,7 +455,7 @@ const params = {
 const trailPoints = [];
 const trailGeometry = new THREE.BufferGeometry();
 const trailMaterial = new THREE.LineBasicMaterial({ 
-  color: CONFIG.COLORS.TRAIL,
+  color: 0xff9900,
   transparent: true,
   opacity: 0.7,
   blending: THREE.AdditiveBlending
@@ -550,7 +469,7 @@ const trailGlowGeometry = new THREE.TubeGeometry(
   20, 0.2, 8, false
 );
 const trailGlowMaterial = new THREE.MeshBasicMaterial({
-  color: CONFIG.COLORS.TRAIL_GLOW,
+  color: 0xff5500,
   transparent: true,
   opacity: 0.3,
   blending: THREE.AdditiveBlending
@@ -570,7 +489,7 @@ function updateTrail() {
   trailPoints.push(missile.position.clone());
   
   // Limit trail length
-  if (trailPoints.length > CONFIG.TRAIL_MAX_POINTS) {
+  if (trailPoints.length > 100) {
     trailPoints.shift();
   }
   
@@ -622,25 +541,19 @@ visualsFolder.add(params, 'timeOfDay', ["day", "sunset", "night"]).name("Time of
   timeOfDay = value;
   
   // Update sky based on time of day
-  function updateTimeOfDay(value) {
-    const preset = CONFIG.TIME_OF_DAY[value.toUpperCase()];
-    
-    if (!preset) {
-        console.warn("No preset found for time of day: ${value}");
-        return;
-    }
-    
-    // Update all relevant properties
-    Object.assign(effectController, {
-        elevation: preset.elevation,
-        turbidity: preset.turbidity,
-        rayleigh: preset.rayleigh
-        // Add more properties as needed
-    });
-}
-
-// Usage
-updateTimeOfDay(value);
+  if (value === "day") {
+    effectController.elevation = 45;
+    effectController.turbidity = 10;
+    effectController.rayleigh = 3;
+  } else if (value === "sunset") {
+    effectController.elevation = 5;
+    effectController.turbidity = 5;
+    effectController.rayleigh = 5;
+  } else if (value === "night") {
+    effectController.elevation = -10;
+    effectController.turbidity = 2;
+    effectController.rayleigh = 0.5;
+  }
   
   updateSky();
   
@@ -690,7 +603,7 @@ function resetSimulation() {
   phase = "Boost";
   phaseText.textContent = "Current Phase: Boost";
   boostEnded = false;
-  params.fuelLeft = CONFIG.INITIAL_FUEL;
+  params.fuelLeft = params.initialFuel;
   
   // Reset explosion particles
   if (explosionParticles) {
@@ -716,8 +629,11 @@ scene.add(thrustArrow, gravityArrow, dragArrow);
 
 
 function getAirDensity(altitude) {
+  const seaLevelDensity = 1.225; // kg/m³ at sea level
+  const scaleHeight = 8500; // meters
+
   // Exponential decrease in density with altitude
-  return CONFIG.AIR_DENSITY_SEA_LEVEL * Math.exp(-altitude / CONFIG.AIR_DENSITY_SCALE_HEIGHT);
+  return seaLevelDensity * Math.exp(-altitude / scaleHeight);
 }
 
 
@@ -841,7 +757,7 @@ function createImpactEffects(position) {
   // Create crater
   const craterGeometry = new THREE.CircleGeometry(3, 32);
   const craterMaterial = new THREE.MeshStandardMaterial({ 
-    color: CONFIG.COLORS.CRATER,
+    color: 0x333333,
     roughness: 0.9,
     metalness: 0.1,
     side: THREE.DoubleSide
@@ -858,7 +774,7 @@ function createImpactEffects(position) {
     const size = Math.random() * 0.5 + 0.2;
     const debrisGeometry = new THREE.BoxGeometry(size, size, size);
     const debrisMaterial = new THREE.MeshStandardMaterial({ 
-      color: CONFIG.COLORS.DEBRIS,
+      color: 0x555555,
       roughness: 1.0,
       metalness: 0.2
     });
@@ -905,7 +821,7 @@ function createImpactEffects(position) {
   // Trigger camera shake
   cameraShake.active = true;
   cameraShake.intensity = 1.0 * params.cameraShakeIntensity;
-  cameraShake.duration = CONFIG.CAMERA_SHAKE_DURATION;
+  cameraShake.duration = 2.0;
   cameraShake.elapsed = 0;
 }
 
@@ -947,7 +863,7 @@ function animate() {
   const elapsed = clock.elapsedTime;
   let netForce = new THREE.Vector3();
 
-  const weight = new THREE.Vector3(0,params.mass * CONFIG.GRAVITY, 0)
+  const weight = new THREE.Vector3(0, params.mass * GRAVITY, 0);
 let thrust = new THREE.Vector3();
 let drag = new THREE.Vector3();
 
@@ -955,7 +871,7 @@ let drag = new THREE.Vector3();
 if (!boostEnded) {
   if (params.fuelLeft > 0) {
     const progress = 1 - params.fuelLeft / params.initialFuel;
-    const tiltAngle = CONFIG.TARGET_TILT_ANGLE * progress;
+    const tiltAngle = TARGET_TILT_ANGLE * progress;
     missile.rotation.z = tiltAngle;
 
     const thrustDir = new THREE.Vector3(0, 1, 0);
@@ -1070,9 +986,9 @@ if (velocity.length() > 0.1) {
   
   // Camera modes
   if (cameraMode === "follow") {
-  const followDistance =  CONFIG.FOLLOW_DISTANCE; // behind missile
-  const followHeight = CONFIG.FOLLOW_HEIGHT;   // above missile
-  const forwardOffset = CONFIG.FOLLOW_FORWARD_OFFSET;  // look ahead
+  const followDistance = 6; // behind missile
+  const followHeight = 3;   // above missile
+  const forwardOffset = 4;  // look ahead
 
   // Calculate offset in missile local space
   const offset = new THREE.Vector3(0, followHeight, -followDistance);
@@ -1091,8 +1007,8 @@ if (velocity.length() > 0.1) {
   controls.enabled = false;
 }
 else if (cameraMode === "overview") {
-  const baseRadius = CONFIG.OVERVIEW_RADIUS;
-  const orbitSpeed = CONFIG.OVERVIEW_ORBIT_SPEED;
+  const baseRadius = 50;
+  const orbitSpeed = 0.25;
   const angle = clock.elapsedTime * orbitSpeed;
 
   // Slightly increase radius if rocket speeds up
@@ -1262,6 +1178,7 @@ else if (cameraMode === "first-person") {
   camera.position.y += (Math.random() - 0.5) * shakeIntensity;
   camera.position.z += (Math.random() - 0.5) * shakeIntensity;
 }
+
 
 
   composer.render();
