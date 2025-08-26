@@ -636,7 +636,6 @@ function getAirDensity(altitude) {
   return seaLevelDensity * Math.exp(-altitude / scaleHeight);
 }
 
-
 function computeDrag(velocity, altitude) {
   const airDensity = getAirDensity(altitude);
   const dragCoefficient = params.dragCoeff;
@@ -1187,12 +1186,16 @@ else if (cameraMode === "first-person") {
 animate();
 
 
+
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
 });
+
+
 
 // Add keyboard shortcuts for camera modes
 window.addEventListener('keydown', (e) => {
@@ -1264,6 +1267,948 @@ animate = function() {
 // Initialize with a reset
 resetSimulation();
 
+// Add this to your main.js file after the launch platform code
 
+// === Enhanced Launch Control Building ===
+const building = new THREE.Group();
 
+// Main building structure
+const buildingGeometry = new THREE.BoxGeometry(15, 8, 10);
+const buildingMaterial = new THREE.MeshStandardMaterial({ 
+  color: 0x444444,
+  roughness: 0.8,
+  metalness: 0.3
+});
+const buildingMain = new THREE.Mesh(buildingGeometry, buildingMaterial);
+buildingMain.position.set(0, 4, 0);
+buildingMain.castShadow = true;
+buildingMain.receiveShadow = true;
+building.add(buildingMain);
+
+// Building roof
+const roofGeometry = new THREE.BoxGeometry(16, 1, 11);
+const roofMaterial = new THREE.MeshStandardMaterial({ 
+  color: 0x222222,
+  roughness: 0.9,
+  metalness: 0.1
+});
+const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+roof.position.set(0, 8.5, 0);
+building.add(roof);
+
+// Windows
+const windowGeometry = new THREE.PlaneGeometry(1.5, 1.5);
+const windowMaterial = new THREE.MeshBasicMaterial({ 
+  color: 0x88ccff,
+  emissive: 0x224466,
+  emissiveIntensity: 0.5,
+  transparent: true,
+  opacity: 0.7
+});
+
+// Add windows to front and sides
+for (let i = 0; i < 3; i++) {
+  for (let j = 0; j < 2; j++) {
+    // Front windows
+    const windowFront = new THREE.Mesh(windowGeometry, windowMaterial);
+    windowFront.position.set(-4 + i * 4, 2 + j * 2.5, 5.01);
+    building.add(windowFront);
+    
+    // Side windows (right)
+    const windowRight = new THREE.Mesh(windowGeometry, windowMaterial);
+    windowRight.position.set(7.51, 2 + j * 2.5, -3 + i * 3);
+    windowRight.rotation.y = Math.PI / 2;
+    building.add(windowRight);
+    
+    // Side windows (left)
+    const windowLeft = new THREE.Mesh(windowGeometry, windowMaterial);
+    windowLeft.position.set(-7.51, 2 + j * 2.5, -3 + i * 3);
+    windowLeft.rotation.y = -Math.PI / 2;
+    building.add(windowLeft);
+  }
+}
+
+// Door
+const doorGeometry = new THREE.PlaneGeometry(2.5, 3.5);
+const doorMaterial = new THREE.MeshStandardMaterial({ 
+  color: 0x553311,
+  roughness: 0.9,
+  metalness: 0.1
+});
+const door = new THREE.Mesh(doorGeometry, doorMaterial);
+door.position.set(0, 1.75, 5.01);
+building.add(door);
+
+// Door handle
+const handleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+const handleMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+handle.position.set(0.8, 1.75, 5.02);
+building.add(handle);
+
+// Antenna on roof
+const antennaBase = new THREE.CylinderGeometry(0.3, 0.3, 0.5, 8);
+const antennaBaseMaterial = new THREE.MeshStandardMaterial({ color: 0x777777 });
+const antenna = new THREE.Mesh(antennaBase, antennaBaseMaterial);
+antenna.position.set(0, 9.25, 0);
+building.add(antenna);
+
+const antennaPole = new THREE.CylinderGeometry(0.05, 0.05, 3, 8);
+const antennaPoleMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+const pole = new THREE.Mesh(antennaPole, antennaPoleMaterial);
+pole.position.set(0, 10.75, 0);
+building.add(pole);
+
+const antennaTop = new THREE.SphereGeometry(0.2, 8, 8);
+const antennaTopMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const top = new THREE.Mesh(antennaTop, antennaTopMaterial);
+top.position.set(0, 12, 0);
+building.add(top);
+
+// Position the building next to the launch platform
+building.position.set(40, 0, -15);
+building.rotation.y = -Math.PI / 4;
+
+scene.add(building);
+
+// Add two additional buildings similar to the launch control building
+function createAdditionalBuildings() {
+  // Create second building
+  const building2 = new THREE.Group();
+  
+  // Main building structure
+  const building2Geometry = new THREE.BoxGeometry(12, 6, 8);
+  const building2Material = new THREE.MeshStandardMaterial({ 
+    color: 0x555555,
+    roughness: 0.8,
+    metalness: 0.3
+  });
+  const building2Main = new THREE.Mesh(building2Geometry, building2Material);
+  building2Main.position.set(0, 3, 0);
+  building2Main.castShadow = true;
+  building2Main.receiveShadow = true;
+  building2.add(building2Main);
+
+  // Building roof
+  const roof2Geometry = new THREE.BoxGeometry(13, 1, 9);
+  const roof2Material = new THREE.MeshStandardMaterial({ 
+    color: 0x333333,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const roof2 = new THREE.Mesh(roof2Geometry, roof2Material);
+  roof2.position.set(0, 6.5, 0);
+  building2.add(roof2);
+
+  // Windows
+  const window2Geometry = new THREE.PlaneGeometry(1.2, 1.2);
+  const window2Material = new THREE.MeshBasicMaterial({ 
+    color: 0x88ccff,
+    emissive: 0x224466,
+    emissiveIntensity: 0.5,
+    transparent: true,
+    opacity: 0.7
+  });
+
+  // Add windows to front
+  for (let i = 0; i < 2; i++) {
+    for (let j = 0; j < 2; j++) {
+      const windowFront = new THREE.Mesh(window2Geometry, window2Material);
+      windowFront.position.set(-3 + i * 6, 2 + j * 2, 4.01);
+      building2.add(windowFront);
+    }
+  }
+
+  // Door
+  const door2Geometry = new THREE.PlaneGeometry(2, 2.5);
+  const door2Material = new THREE.MeshStandardMaterial({ 
+    color: 0x553311,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const door2 = new THREE.Mesh(door2Geometry, door2Material);
+  door2.position.set(0, 1.25, 4.01);
+  building2.add(door2);
+
+  // Position the second building
+  building2.position.set(-30, 0, -20);
+  building2.rotation.y = Math.PI / 4;
+  scene.add(building2);
+
+  // Create third building (smaller storage-like structure)
+  const building3 = new THREE.Group();
+  
+  // Main building structure
+  const building3Geometry = new THREE.BoxGeometry(8, 4, 6);
+  const building3Material = new THREE.MeshStandardMaterial({ 
+    color: 0x666666,
+    roughness: 0.8,
+    metalness: 0.3
+  });
+  const building3Main = new THREE.Mesh(building3Geometry, building3Material);
+  building3Main.position.set(0, 2, 0);
+  building3Main.castShadow = true;
+  building3Main.receiveShadow = true;
+  building3.add(building3Main);
+
+  // Building roof
+  const roof3Geometry = new THREE.BoxGeometry(9, 0.5, 7);
+  const roof3Material = new THREE.MeshStandardMaterial({ 
+    color: 0x444444,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const roof3 = new THREE.Mesh(roof3Geometry, roof3Material);
+  roof3.position.set(0, 4.25, 0);
+  building3.add(roof3);
+
+  // Add ventilation pipes
+  const pipeGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
+  const pipeMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+  
+  const pipe1 = new THREE.Mesh(pipeGeometry, pipeMaterial);
+  pipe1.position.set(2, 4.75, 1);
+  pipe1.rotation.x = Math.PI / 2;
+  building3.add(pipe1);
+  
+  const pipe2 = new THREE.Mesh(pipeGeometry, pipeMaterial);
+  pipe2.position.set(-2, 4.75, -1);
+  pipe2.rotation.x = Math.PI / 2;
+  building3.add(pipe2);
+
+  // Door
+  const door3Geometry = new THREE.PlaneGeometry(1.5, 2);
+  const door3Material = new THREE.MeshStandardMaterial({ 
+    color: 0x553311,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const door3 = new THREE.Mesh(door3Geometry, door3Material);
+  door3.position.set(0, 1, 3.01);
+  building3.add(door3);
+
+  // Position the third building
+  building3.position.set(25, 0, 30);
+  building3.rotation.y = -Math.PI / 3;
+  scene.add(building3);
+}
+
+// Call this function after the original building is created
+createAdditionalBuildings();
+
+// Add a bank building that complements the existing structures
+function createBankBuilding() {
+  const bank = new THREE.Group();
+  
+  // Main bank structure (more formal and ornate than military buildings)
+  const bankGeometry = new THREE.BoxGeometry(18, 10, 15);
+  const bankMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x8B4513, // Rich brown color for a formal look
+    roughness: 0.7,
+    metalness: 0.2
+  });
+  const bankMain = new THREE.Mesh(bankGeometry, bankMaterial);
+  bankMain.position.set(0, 5, 0);
+  bankMain.castShadow = true;
+  bankMain.receiveShadow = true;
+  bank.add(bankMain);
+
+  // Bank roof (more elaborate than military buildings)
+  const bankRoofGeometry = new THREE.BoxGeometry(19, 1.5, 16);
+  const bankRoofMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x2F4F4F, // Dark slate gray
+    roughness: 0.8,
+    metalness: 0.1
+  });
+  const bankRoof = new THREE.Mesh(bankRoofGeometry, bankRoofMaterial);
+  bankRoof.position.set(0, 10.75, 0);
+  bank.add(bankRoof);
+
+  // Decorative cornice
+  const corniceGeometry = new THREE.BoxGeometry(19.5, 0.3, 16.5);
+  const corniceMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xDAA520, // Goldenrod for decorative elements
+    roughness: 0.4,
+    metalness: 0.6
+  });
+  const cornice = new THREE.Mesh(corniceGeometry, corniceMaterial);
+  cornice.position.set(0, 9.5, 0);
+  bank.add(cornice);
+
+  // Grand entrance with columns
+  const columnGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 16);
+  const columnMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xF5F5DC, // Beige for columns
+    roughness: 0.6,
+    metalness: 0.2
+  });
+  
+  for (let i = 0; i < 2; i++) {
+    const column = new THREE.Mesh(columnGeometry, columnMaterial);
+    column.position.set(-3 + i * 6, 2, 7.51);
+    bank.add(column);
+  }
+
+  // Grand entrance door
+  const bankDoorGeometry = new THREE.BoxGeometry(4, 3, 0.2);
+  const bankDoorMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x8B0000, // Dark red for a formal door
+    roughness: 0.5,
+    metalness: 0.3
+  });
+  const bankDoor = new THREE.Mesh(bankDoorGeometry, bankDoorMaterial);
+  bankDoor.position.set(0, 1.5, 7.6);
+  bank.add(bankDoor);
+
+  // Door handle (more elaborate than military buildings)
+  const bankHandleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 12);
+  const bankHandleMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xFFD700, // Gold color
+    roughness: 0.3,
+    metalness: 0.8
+  });
+  const bankHandle = new THREE.Mesh(bankHandleGeometry, bankHandleMaterial);
+  bankHandle.position.set(1.2, 1.5, 7.7);
+  bankHandle.rotation.z = Math.PI / 2;
+  bank.add(bankHandle);
+
+  // Bank windows (larger and more formal)
+  const bankWindowGeometry = new THREE.PlaneGeometry(2, 2.5);
+  const bankWindowMaterial = new THREE.MeshBasicMaterial({ 
+    color: 0xADD8E6,
+    emissive: 0x224466,
+    emissiveIntensity: 0.3,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  // Add windows to front
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 2; j++) {
+      const window = new THREE.Mesh(bankWindowGeometry, bankWindowMaterial);
+      window.position.set(-5 + i * 5, 3 + j * 3, 7.51);
+      bank.add(window);
+    }
+  }
+
+  // Add windows to sides
+  for (let i = 0; i < 2; i++) {
+    for (let j = 0; j < 2; j++) {
+      // Right side windows
+      const rightWindow = new THREE.Mesh(bankWindowGeometry, bankWindowMaterial);
+      rightWindow.position.set(9.01, 3 + j * 3, -4 + i * 8);
+      rightWindow.rotation.y = Math.PI / 2;
+      bank.add(rightWindow);
+      
+      // Left side windows
+      const leftWindow = new THREE.Mesh(bankWindowGeometry, bankWindowMaterial);
+      leftWindow.position.set(-9.01, 3 + j * 3, -4 + i * 8);
+      leftWindow.rotation.y = -Math.PI / 2;
+      bank.add(leftWindow);
+    }
+  }
+
+  // Bank sign
+  const signGeometry = new THREE.BoxGeometry(6, 1, 0.2);
+  const signMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x2F4F4F, // Dark slate gray
+    roughness: 0.5,
+    metalness: 0.3
+  });
+  const sign = new THREE.Mesh(signGeometry, signMaterial);
+  sign.position.set(0, 9, 7.6);
+  bank.add(sign);
+
+  // Sign text (simulated with simple geometry)
+  const textGeometry = new THREE.BoxGeometry(4, 0.2, 0.1);
+  const textMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0xFFD700, // Gold color
+    roughness: 0.3,
+    metalness: 0.8
+  });
+  
+  // Create "BANK" text using simple rectangles
+  const letters = [
+    // Letter B
+    { position: [-1.5, 9, 7.75], scale: [0.2, 0.6, 1] },
+    { position: [-1.3, 9.2, 7.75], scale: [0.4, 0.2, 1] },
+    { position: [-1.3, 9, 7.75], scale: [0.4, 0.2, 1] },
+    { position: [-1.3, 8.8, 7.75], scale: [0.4, 0.2, 1] },
+    
+    // Letter A
+    { position: [-0.5, 9, 7.75], scale: [0.2, 0.6, 1] },
+    { position: [-0.3, 9.2, 7.75], scale: [0.4, 0.2, 1] },
+    { position: [-0.3, 9, 7.75], scale: [0.4, 0.2, 1] },
+    
+    // Letter N
+    { position: [0.5, 9, 7.75], scale: [0.2, 0.6, 1] },
+    { position: [0.7, 9, 7.75], scale: [0.2, 0.6, 1] },
+    
+    // Letter K
+    { position: [1.5, 9, 7.75], scale: [0.2, 0.6, 1] },
+    { position: [1.3, 9.1, 7.75], scale: [0.3, 0.2, 1] },
+    { position: [1.3, 8.9, 7.75], scale: [0.3, 0.2, 1] }
+  ];
+  
+  letters.forEach(letter => {
+    const textPart = new THREE.Mesh(textGeometry, textMaterial);
+    textPart.position.set(letter.position[0], letter.position[1], letter.position[2]);
+    textPart.scale.set(letter.scale[0], letter.scale[1], letter.scale[2]);
+    bank.add(textPart);
+  });
+
+  // Position the bank building in a prominent location
+  bank.position.set(-50, 0, 30);
+  bank.rotation.y = -Math.PI / 6;
+  scene.add(bank);
+
+  // Add landscaping around the bank (simple bushes)
+  const bushGeometry = new THREE.SphereGeometry(1.5, 8, 8);
+  const bushMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x228B22,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  
+  for (let i = 0; i < 6; i++) {
+    const bush = new THREE.Mesh(bushGeometry, bushMaterial);
+    const angle = (i / 6) * Math.PI * 2;
+    const radius = 12;
+    bush.position.set(
+      -50 + Math.cos(angle) * radius,
+      1.5,
+      30 + Math.sin(angle) * radius
+    );
+    bush.scale.set(
+      1 + Math.random() * 0.5,
+      1 + Math.random() * 0.5,
+      1 + Math.random() * 0.5
+    );
+    scene.add(bush);
+  }
+}
+
+// Call this function after the original buildings are created
+createBankBuilding();
+
+// === Stone Wall around the complex ===
+// === Stone Wall around the complex ===
+function createStoneWall() {
+  const wallGroup = new THREE.Group();
+  const wallLength = 200; // Increased from 120 to 200 units
+  const wallHeight = 4;
+  const wallThickness = 2;
+  
+  // Stone texture for the wall
+  const stoneTexture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/stone/stone_wall.jpg');
+  stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+  stoneTexture.repeat.set(6, 1); // Increased texture repeat to match larger walls
+  
+  const wallMaterial = new THREE.MeshStandardMaterial({ 
+    map: stoneTexture,
+    color: 0x888888,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  
+  // Create four walls
+  const directions = [
+    { position: [0, wallHeight/2, -wallLength/2], rotation: [0, 0, 0] }, // North
+    { position: [0, wallHeight/2, wallLength/2], rotation: [0, Math.PI, 0] }, // South
+    { position: [-wallLength/2, wallHeight/2, 0], rotation: [0, Math.PI/2, 0] }, // West
+    { position: [wallLength/2, wallHeight/2, 0], rotation: [0, -Math.PI/2, 0] }  // East
+  ];
+  
+  directions.forEach(dir => {
+    const wallGeometry = new THREE.BoxGeometry(wallLength, wallHeight, wallThickness);
+    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+    wall.position.set(dir.position[0], dir.position[1], dir.position[2]);
+    wall.rotation.y = dir.rotation[1];
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+    wallGroup.add(wall);
+  });
+  
+  // Add corner pillars for reinforcement
+  const pillarGeometry = new THREE.BoxGeometry(wallThickness * 1.5, wallHeight * 1.2, wallThickness * 1.5);
+  const pillarMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x666666,
+    roughness: 0.8,
+    metalness: 0.2
+  });
+  
+  const corners = [
+    [-wallLength/2, wallHeight * 0.6, -wallLength/2], // NW
+    [wallLength/2, wallHeight * 0.6, -wallLength/2],  // NE
+    [-wallLength/2, wallHeight * 0.6, wallLength/2],  // SW
+    [wallLength/2, wallHeight * 0.6, wallLength/2]    // SE
+  ];
+  
+  corners.forEach(corner => {
+    const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+    pillar.position.set(corner[0], corner[1], corner[2]);
+    pillar.castShadow = true;
+    wallGroup.add(pillar);
+  });
+  
+  // Add a gate on one side (south wall)
+  const gateWidth = 15; // Slightly wider gate to match larger scale
+  const gateGeometry = new THREE.BoxGeometry(gateWidth, wallHeight * 0.8, wallThickness * 0.8);
+  const gateMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x8B4513, // Wood-like color
+    roughness: 0.7,
+    metalness: 0.3
+  });
+  
+  const gate = new THREE.Mesh(gateGeometry, gateMaterial);
+  gate.position.set(0, wallHeight * 0.4, wallLength/2 - wallThickness/2);
+  wallGroup.add(gate);
+  
+  // Add gate details (cross beams)
+  const beamGeometry = new THREE.BoxGeometry(gateWidth * 0.8, wallHeight * 0.1, wallThickness * 0.2);
+  const beamMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x5D4037, // Darker wood
+    roughness: 0.6,
+    metalness: 0.4
+  });
+  
+  for (let i = 0; i < 3; i++) {
+    const beam = new THREE.Mesh(beamGeometry, beamMaterial);
+    beam.position.set(0, wallHeight * (0.2 + i * 0.2), wallLength/2 - wallThickness/4);
+    wallGroup.add(beam);
+  }
+  
+  // Position the wall group to center around the buildings
+  wallGroup.position.set(0, 0, 0);
+  scene.add(wallGroup);
+}
+
+// Call this function after creating all buildings
+createStoneWall();
+
+// === Enhanced Military Soldiers ===
+function createSoldiers() {
+  const soldierGroup = new THREE.Group();
+  
+  // Soldier positions around the complex
+  const soldierPositions = [
+    // Launch platform security
+    { x: 8, z: -5, rotation: Math.PI/2, type: "guard" },
+    { x: -8, z: -5, rotation: -Math.PI/2, type: "guard" },
+    { x: 0, z: -12, rotation: 0, type: "officer" },
+    
+    // Building entrances
+    { x: 45, z: -10, rotation: -Math.PI/4, type: "guard" },
+    { x: 35, z: -20, rotation: Math.PI/4, type: "guard" },
+    { x: -25, z: -25, rotation: Math.PI/3, type: "guard" },
+    { x: 20, z: 35, rotation: -Math.PI/6, type: "guard" },
+    
+    // Wall patrol points
+    { x: 80, z: 0, rotation: Math.PI, type: "patrol" },
+    { x: -80, z: 0, rotation: 0, type: "patrol" },
+    { x: 0, z: 80, rotation: -Math.PI/2, type: "patrol" },
+    { x: 0, z: -80, rotation: Math.PI/2, type: "patrol" },
+    
+    // Gate guards
+    { x: 10, z: 95, rotation: -Math.PI/2, type: "guard" },
+    { x: -10, z: 95, rotation: -Math.PI/2, type: "guard" }
+  ];
+
+  // Create soldiers with different types
+  soldierPositions.forEach((pos, index) => {
+    const soldier = createEnhancedSoldier(pos.type);
+    soldier.position.set(pos.x, 0, pos.z);
+    soldier.rotation.y = pos.rotation;
+    soldier.userData = {
+      type: pos.type,
+      originalPosition: new THREE.Vector3(pos.x, 0, pos.z),
+      patrolIndex: index,
+      patrolDirection: 1,
+      patrolDistance: 5 + Math.random() * 5,
+      patrolSpeed: 0.5 + Math.random() * 1.5
+    };
+    soldierGroup.add(soldier);
+  });
+
+  scene.add(soldierGroup);
+  return soldierGroup;
+}
+
+function createEnhancedSoldier(type = "guard") {
+  const soldier = new THREE.Group();
+  const uniformColor = type === "officer" ? 0x444444 : 0x556B2F; // Darker for officers
+  
+  // Create body parts with more detail
+  const torso = createTorso(uniformColor);
+  const head = createHead();
+  const legs = createLegs(uniformColor);
+  const arms = createArms(uniformColor);
+  const helmet = createHelmet(uniformColor);
+  const equipment = createEquipment(type);
+  
+  // Position parts
+  torso.position.y = 1.1;
+  head.position.y = 1.9;
+  helmet.position.y = 1.95;
+  legs.position.y = 0.6;
+  
+  // Add to soldier group
+  soldier.add(torso);
+  soldier.add(head);
+  soldier.add(helmet);
+  soldier.add(legs);
+  soldier.add(arms);
+  soldier.add(equipment);
+  
+  // Add animation mixer if needed
+  soldier.userData = {
+    type: type,
+    animation: null
+  };
+  
+  // Shadow casting
+  soldier.traverse(child => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  
+  return soldier;
+}
+
+function createTorso(color) {
+  const torsoGroup = new THREE.Group();
+  
+  // Main torso
+  const torsoGeometry = new THREE.CylinderGeometry(0.4, 0.45, 1.2, 8);
+  const torsoMaterial = new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+  torsoGroup.add(torso);
+  
+  // Vest/gear
+  const vestGeometry = new THREE.CylinderGeometry(0.42, 0.47, 0.9, 8);
+  const vestMaterial = new THREE.MeshStandardMaterial({
+    color: 0x333333,
+    roughness: 0.8,
+    metalness: 0.3
+  });
+  const vest = new THREE.Mesh(vestGeometry, vestMaterial);
+  vest.position.y = 0.1;
+  torsoGroup.add(vest);
+  
+  // Pockets/details
+  const pocketGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.05);
+  const pocketMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    roughness: 0.7,
+    metalness: 0.2
+  });
+  
+  for (let i = 0; i < 2; i++) {
+    const pocket = new THREE.Mesh(pocketGeometry, pocketMaterial);
+    pocket.position.set(i * 0.2 - 0.1, -0.3, 0.42);
+    torsoGroup.add(pocket);
+  }
+  
+  return torsoGroup;
+}
+
+function createHead() {
+  const headGroup = new THREE.Group();
+  
+  // Head base
+  const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+  const headMaterial = new THREE.MeshStandardMaterial({
+    color: 0xFFDBAC, // Skin tone
+    roughness: 0.8,
+    metalness: 0.1
+  });
+  const head = new THREE.Mesh(headGeometry, headMaterial);
+  headGroup.add(head);
+  
+  // Simple eyes
+  const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+  const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+  
+  for (let i = 0; i < 2; i++) {
+    const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    eye.position.set(i * 0.1 - 0.05, 0.05, 0.28);
+    headGroup.add(eye);
+  }
+  
+  return headGroup;
+}
+
+function createHelmet(color) {
+  const helmetGroup = new THREE.Group();
+  
+  // Helmet base
+  const helmetGeometry = new THREE.SphereGeometry(0.32, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+  const helmetMaterial = new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 0.9,
+    metalness: 0.2
+  });
+  const helmet = new THREE.Mesh(helmetGeometry, helmetMaterial);
+  helmet.rotation.x = Math.PI;
+  helmetGroup.add(helmet);
+  
+  // Helmet strap
+  const strapGeometry = new THREE.TorusGeometry(0.3, 0.02, 8, 16, Math.PI);
+  const strapMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    roughness: 0.8,
+    metalness: 0.1
+  });
+  const strap = new THREE.Mesh(strapGeometry, strapMaterial);
+  strap.rotation.x = Math.PI / 2;
+  strap.position.y = 0.05;
+  helmetGroup.add(strap);
+  
+  return helmetGroup;
+}
+
+function createLegs(color) {
+  const legsGroup = new THREE.Group();
+  
+  const legGeometry = new THREE.CylinderGeometry(0.15, 0.2, 1.2, 8);
+  const legMaterial = new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  
+  for (let i = 0; i < 2; i++) {
+    const leg = new THREE.Mesh(legGeometry, legMaterial);
+    leg.position.set(i * 0.25 - 0.125, -0.6, 0);
+    legsGroup.add(leg);
+    
+    // Boots
+    const bootGeometry = new THREE.BoxGeometry(0.25, 0.2, 0.3);
+    const bootMaterial = new THREE.MeshStandardMaterial({
+      color: 0x222222,
+      roughness: 0.8,
+      metalness: 0.3
+    });
+    const boot = new THREE.Mesh(bootGeometry, bootMaterial);
+    boot.position.y = -0.7;
+    leg.add(boot);
+  }
+  
+  return legsGroup;
+}
+
+function createArms(color) {
+  const armsGroup = new THREE.Group();
+  
+  const armGeometry = new THREE.CylinderGeometry(0.12, 0.15, 0.8, 8);
+  const armMaterial = new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  
+  for (let i = 0; i < 2; i++) {
+    const arm = new THREE.Mesh(armGeometry, armMaterial);
+    arm.position.set(i * 0.6 - 0.3, 1.1, 0);
+    arm.rotation.z = i === 0 ? 0.2 : -0.2;
+    armsGroup.add(arm);
+    
+    // Gloves/hands
+    const handGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const handMaterial = new THREE.MeshStandardMaterial({
+      color: 0x222222,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const hand = new THREE.Mesh(handGeometry, handMaterial);
+    hand.position.y = i === 0 ? -0.45 : -0.45;
+    arm.add(hand);
+  }
+  
+  return armsGroup;
+}
+
+function createEquipment(type) {
+  const equipmentGroup = new THREE.Group();
+  
+  // Rifle for all soldiers
+  const rifle = createRifle();
+  rifle.position.set(0.4, 1.1, 0);
+  rifle.rotation.z = -0.3;
+  equipmentGroup.add(rifle);
+  
+  // Additional equipment based on type
+  if (type === "officer") {
+    // Binoculars
+    const binocularsGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.1);
+    const binocularsMaterial = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.5,
+      metalness: 0.5
+    });
+    const binoculars = new THREE.Mesh(binocularsGeometry, binocularsMaterial);
+    binoculars.position.set(-0.3, 1.5, 0.25);
+    binoculars.rotation.z = 0.3;
+    equipmentGroup.add(binoculars);
+    
+    // Radio on back
+    const radioGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.1);
+    const radioMaterial = new THREE.MeshStandardMaterial({
+      color: 0x444444,
+      roughness: 0.7,
+      metalness: 0.3
+    });
+    const radio = new THREE.Mesh(radioGeometry, radioMaterial);
+    radio.position.set(0, 1.1, -0.4);
+    equipmentGroup.add(radio);
+    
+    // Antenna
+    const antennaGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.3, 8);
+    const antennaMaterial = new THREE.MeshStandardMaterial({
+      color: 0xCCCCCC,
+      roughness: 0.4,
+      metalness: 0.6
+    });
+    const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
+    antenna.position.set(0, 1.35, -0.4);
+    equipmentGroup.add(antenna);
+  }
+  
+  // Sidearm for all soldiers
+  const holsterGeometry = new THREE.BoxGeometry(0.1, 0.15, 0.05);
+  const holsterMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    roughness: 0.8,
+    metalness: 0.2
+  });
+  const holster = new THREE.Mesh(holsterGeometry, holsterMaterial);
+  holster.position.set(-0.35, 0.9, 0.35);
+  equipmentGroup.add(holster);
+  
+  return equipmentGroup;
+}
+
+function createRifle() {
+  const rifleGroup = new THREE.Group();
+  
+  // Rifle body
+  const bodyGeometry = new THREE.BoxGeometry(1.2, 0.05, 0.08);
+  const bodyMaterial = new THREE.MeshStandardMaterial({
+    color: 0x333333,
+    roughness: 0.7,
+    metalness: 0.4
+  });
+  const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+  rifleGroup.add(body);
+  
+  // Rifle stock
+  const stockGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.08);
+  const stockMaterial = new THREE.MeshStandardMaterial({
+    color: 0x5D4037,
+    roughness: 0.8,
+    metalness: 0.2
+  });
+  const stock = new THREE.Mesh(stockGeometry, stockMaterial);
+  stock.position.set(-0.55, 0, 0);
+  rifleGroup.add(stock);
+  
+  // Barrel
+  const barrelGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8);
+  const barrelMaterial = new THREE.MeshStandardMaterial({
+    color: 0x666666,
+    roughness: 0.5,
+    metalness: 0.6
+  });
+  const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+  barrel.position.set(0.65, 0, 0);
+  barrel.rotation.z = Math.PI / 2;
+  rifleGroup.add(barrel);
+  
+  // Magazine
+  const magazineGeometry = new THREE.BoxGeometry(0.15, 0.2, 0.06);
+  const magazineMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    roughness: 0.6,
+    metalness: 0.4
+  });
+  const magazine = new THREE.Mesh(magazineGeometry, magazineMaterial);
+  magazine.position.set(0.1, -0.1, 0);
+  rifleGroup.add(magazine);
+  
+  // Scope (for some rifles)
+  if (Math.random() > 0.7) {
+    const scopeGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.15, 16);
+    const scopeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x888888,
+      roughness: 0.4,
+      metalness: 0.7
+    });
+    const scope = new THREE.Mesh(scopeGeometry, scopeMaterial);
+    scope.position.set(0.4, 0.05, 0);
+    scope.rotation.z = Math.PI / 2;
+    rifleGroup.add(scope);
+    
+    const lensGeometry = new THREE.CylinderGeometry(0.025, 0.025, 0.02, 16);
+    const lensMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0000FF,
+      roughness: 0.2,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.7
+    });
+    const lens = new THREE.Mesh(lensGeometry, lensMaterial);
+    lens.position.set(0.48, 0.05, 0);
+    lens.rotation.z = Math.PI / 2;
+    rifleGroup.add(lens);
+  }
+  
+  return rifleGroup;
+}
+
+// Update soldier animations and patrol movements
+function updateSoldiers(deltaTime) {
+  if (!window.soldierGroup) return;
+  
+  window.soldierGroup.children.forEach(soldier => {
+    // Patrol movement for patrol-type soldiers
+    if (soldier.userData.type === "patrol") {
+      const patrolDistance = soldier.userData.patrolDistance;
+      const patrolSpeed = soldier.userData.patrolSpeed;
+      
+      // Calculate new position along patrol path
+      const angle = soldier.rotation.y;
+      const newX = soldier.userData.originalPosition.x + 
+                  Math.sin(clock.elapsedTime * patrolSpeed) * patrolDistance * Math.cos(angle);
+      const newZ = soldier.userData.originalPosition.z + 
+                  Math.sin(clock.elapsedTime * patrolSpeed) * patrolDistance * Math.sin(angle);
+      
+      soldier.position.x = newX;
+      soldier.position.z = newZ;
+      
+      // Slight head movement to simulate looking around
+      soldier.children[1].rotation.y = Math.sin(clock.elapsedTime * 2) * 0.1;
+    }
+    
+    // Breathing animation for all soldiers
+    const breatheAmount = Math.sin(clock.elapsedTime * 3) * 0.01;
+    soldier.position.y = breatheAmount;
+    
+    // Slight weapon sway
+    const weaponSway = Math.sin(clock.elapsedTime * 4) * 0.02;
+    const rifle = soldier.children[5].children[0];
+    rifle.rotation.z = -0.3 + weaponSway;
+  });
+}
+
+// Replace the original createSoldiers call with:
+window.soldierGroup = createSoldiers();
+
+// Add to your animate function, before composer.render():
+updateSoldiers(clock.getDelta());
 
